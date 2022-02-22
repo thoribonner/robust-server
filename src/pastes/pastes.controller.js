@@ -6,9 +6,11 @@ let lastPasteId = pastes.reduce((maxId, paste) => Math.max(maxId, paste.id), 0);
 function pasteExists(req, res, nxt) {
   const { pasteId } = req.params;
   const foundPaste = pastes.find((paste) => paste.id === Number(pasteId));
-  foundPaste
-    ? nxt()
-    : nxt({ status: 404, message: `Paste ID not found: ${pasteId}` });
+  if (foundPaste) {
+    res.locals.paste = foundPaste;
+    return nxt();
+  }
+  nxt({ status: 404, message: `Paste ID not found: ${pasteId}` });
 }
 
 function bodyDataHas(propertyName) {
@@ -70,7 +72,8 @@ function expirationIsValidNumber(req, res, nxt) {
 
 // * list / GET
 function list(req, res) {
-  res.json({ data: pastes });
+  const { userId } = req.params;
+  res.json({ data: pastes.filter(userId ? paste => paste.user_id == userId : () => true) });
 }
 
 // * create / POST
@@ -92,23 +95,22 @@ function create(req, res) {
 
 // * read / GET by id
 function read(req, res) {
-  const { pasteId } = Number(req.params.pasteId);
-  const foundPaste = pastes.find((paste) => paste.id === pasteId);
-  res.json({ data: foundPaste });
+  res.json({ data: res.locals.paste });
 }
 
 // * update / PUT
 function update(req, res) {
-  const { pasteId } = Number(req.params.pasteId);
-  const foundPaste = pastes.find((paste) => paste.id === pasteId);
-  const { data: { name, syntax, expiration, exposure, text } = {} } = req.body;
-  foundPaste.name = name;
-  foundPaste.syntax = syntax;
-  foundPaste.expiration = expiration;
-  foundPaste.exposure = exposure;
-  foundPaste.text = text;
+  const paste = res.locals.paste;
 
-  res.json({ data: foundPaste });
+  const { data: { name, syntax, expiration, exposure, text } = {} } = req.body;
+
+  paste.name = name;
+  paste.syntax = syntax;
+  paste.expiration = expiration;
+  paste.exposure = exposure;
+  paste.text = text;
+
+  res.json({ data: paste });
 }
 
 // * destroy / DELETE
