@@ -1,45 +1,14 @@
 const express = require("express");
 const app = express();
 const pastes = require("./data/pastes-data");
+const pastesRouter = require('./pastes/pastes.router');
 
 // * middleware
 app.use(express.json());
 
-let lastPasteId = pastes.reduce((maxId, paste) => Math.max(maxId, paste.id), 0);
-
-function bodyHasTextProperty(req, res, nxt) {
-  const { data: { text } = {} } = req.body;
-  text ? nxt() : nxt({ status: 400, message: `A 'text' property is required.`});
-}
-
 // * routes
-app.use("/pastes/:pasteId", (req, res, nxt) => {
-  const { pasteId } = req.params;
-  const foundPaste = pastes.find((paste) => paste.id === Number(pasteId));
-  foundPaste
-    ? res.json({ data: foundPaste })
-    : nxt({ status: 404, message: `Paste id not found: ${pasteId}` });
-});
 
-app.get("/pastes", (req, res) => {
-  res.json({ data: pastes });
-});
-
-app.post("/pastes", bodyHasTextProperty, (req, res, nxt) => {
-  const { data: { name, syntax, exposure, expiration, text, user_id } = {} } =
-    req.body;
-  const newPaste = {
-    id: ++lastPasteId,
-    name,
-    syntax,
-    exposure,
-    expiration,
-    text,
-    user_id,
-  };
-  pastes.push(newPaste);
-  res.status(201).json({ data: newPaste });
-});
+app.use('/pastes', pastesRouter);
 
 // * not found handler
 app.use((req, res, nxt) => {
