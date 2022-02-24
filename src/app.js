@@ -3,7 +3,7 @@ const app = express();
 const usersRouter = require('./users/users.router');
 const pastesRouter = require('./pastes/pastes.router');
 
-// * middleware
+// * allows us to send responses as json
 app.use(express.json());
 
 // * routes
