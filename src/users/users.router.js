@@ -6,6 +6,7 @@ const pastesRouter = require("../pastes/pastes.router");
 
 // * not "RESTful"
 // * how to make "RESTful"???
+// * add userId validation to pastes.controller??
 router.use("/:userId/pastes", controller.userExists, pastesRouter);
 
 
