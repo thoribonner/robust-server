@@ -10,6 +10,9 @@ app.use(express.json());
 app.use('/users', usersRouter);
 app.use('/pastes', pastesRouter);
 
+// // * does this correctly route our paths??
+// app.use('/users/:userId/pastes', pastesRouter);
+
 // * not found handler
 app.use((req, res, nxt) => {
   nxt({status: 404, message: `Not found: ${req.originalUrl}` });

@@ -1,10 +1,11 @@
 const pastes = require("../data/pastes-data");
 
+
 // * validation
 let lastPasteId = pastes.reduce((maxId, paste) => Math.max(maxId, paste.id), 0);
 
 function pasteExists(req, res, nxt) {
-  const { pasteId } = req.params;
+  const { pasteId,  } = req.params;
   const foundPaste = pastes.find((paste) => paste.id === Number(pasteId));
   if (foundPaste) {
     res.locals.paste = foundPaste;
@@ -73,6 +74,8 @@ function expirationIsValidNumber(req, res, nxt) {
 // * list / GET
 function list(req, res) {
   const { userId } = req.params;
+  // * need validation for userID if exists, but it takes away from single responsibility...
+  // * hmmmmmmm
   res.json({ data: pastes.filter(userId ? paste => paste.user_id == userId : () => true) });
 }
 
